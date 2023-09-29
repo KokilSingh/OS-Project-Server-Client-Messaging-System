@@ -20,7 +20,7 @@ int main()
     int msgqid;
     int clientid = 999;
     char input_file[100];
-    char choice;
+    
 
     key = ftok(".",'a');
     msgqid = msgget(key, 0664 | IPC_CREAT);
@@ -28,8 +28,10 @@ int main()
 
     while(true)
     {
+    	
+        char choice;
         printf("Do you want the server to terminate?\nPress Y for Yes and N for No\n");
-        scanf("%c",&choice);
+        scanf(" %c",&choice);
         if(choice == 'N' || choice == 'n')
         {
             sleep(5);

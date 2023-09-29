@@ -25,14 +25,14 @@ int main() {
 
     int pipe_fd[2]; // Array to hold file descriptors for the pipe
 
-    int continue = 1;
+    int cont = 1;
 
     while(true){
 
-        if(continue==0)
+        if(cont==0)
         {
             struct msqid_ds info;
-            msgctl(msqid, IPC_STAT, &info);
+            msgctl(msgqid, IPC_STAT, &info);
             if(info.msg_qnum == 0)break;
         }
 
@@ -41,7 +41,8 @@ int main() {
 
         if(nig.mtype==999 && nig.oprid==-1)
         {
-            continue=0;
+            printf("Server termination request generated\n");	
+            cont=0;
             continue;
         }
 
