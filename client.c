@@ -21,7 +21,7 @@ int main() {
     struct message msg;
     int choice; 
 
-    key = ftok(".", 'a');
+    key = ftok(".", 'b');
     msgqid = msgget(key, 0666 | IPC_CREAT);
 
     if (msgqid == -1) {
