@@ -25,12 +25,25 @@ int main() {
 
     int pipe_fd[2]; // Array to hold file descriptors for the pipe
 
+    int continue = 1;
 
     while(true){
 
+        if(continue==0)
+        {
+            struct msqid_ds info;
+            msgctl(msqid, IPC_STAT, &info);
+            if(info.msg_qnum == 0)break;
+        }
 
         struct message nig; // Buffer to hold data
         msgrcv(msgqid,&nig,MAX_MTEXT_SIZE,0,0);
+
+        if(nig.mtype==999 && nig.oprid==-1)
+        {
+            continue=0;
+            continue;
+        }
 
         // Create the pipe
         if (pipe(pipe_fd) == -1) {
@@ -156,6 +169,8 @@ int main() {
             wait(NULL);
         }
     }
-
+    msgctl(msgqid,IPC_RMID,NULL);
+    //deleting the message queue
+    printf("Server Being Closed\nThank You\n");
     return 0;
 }
