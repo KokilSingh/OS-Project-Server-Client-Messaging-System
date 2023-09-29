@@ -14,6 +14,7 @@
 // Structure for MQ
 struct message {
     long msgtype; // should hold client Id
+    int op;
     char mtext[100];
 };
 
@@ -98,6 +99,7 @@ int main() {
         	}
 
         	printf("Child received message type: %ld\n", Text.msgtype);
+        	printf("Child received operation type: %d\n",Text.op);
         	printf("Child received message text: %s\n", Text.mtext);
         
     		
@@ -110,10 +112,97 @@ int main() {
     		{
     			strcpy(response,"Helloooo");
     		}
-    		else
+    		else 
     		{
     			// Req: Need to creat separate path for choice 2 and 3
-    			strcpy(response,"Middle choice");
+
+    				
+    				
+    			/************************************* 2 and 3 handling **********************************************************/
+    			
+    			// We create another pipe
+    			int pipe_fd_1[2];
+            		pid_t child_pid_1;
+            		if (pipe(pipe_fd_1) == -1) {
+              		  perror("Pipe creation failed");
+             		  exit(EXIT_FAILURE);
+            		}
+
+            		// Create a child process
+            		child_pid_1 = fork();
+
+            		if (child_pid_1 == -1) {
+            		    perror("Fork failed");
+            		    exit(EXIT_FAILURE);
+            		}
+
+            		if (child_pid_1 == 0) {   // This is the server->child->child process 
+              		  	// Child process
+              		  	close(pipe_fd_1[0]); // Close the read end of the pipe (not needed by the child)
+
+             		  	// Redirect stdout to the write end of the pipe
+             		  	 dup2(pipe_fd_1[1], 1);
+              		  	 close(pipe_fd_1[1]); // Close the original write end of the pipe
+             		  	 const char *fileName = Text.mtext;
+             		  	 // Replace the child process with a new process using execlp
+             		  	 if(Text.op == 3){
+             		  	     if (execlp("wc","wc", "-w",fileName, NULL) == -1) {
+              		   	       perror("execlp failed");
+              		   	       exit(EXIT_FAILURE);
+              		   	   }
+              		  	 }
+
+              		  	 if(Text.op == 2){
+               		 	    if(execlp("find","find",".","-name",fileName,NULL) == -1){
+               		 	        perror("Find execlp failed");
+               		 	        exit(EXIT_FAILURE);
+               		 	    }
+               		  	 }
+               		  	 
+               		  	 exit(EXIT_SUCCESS);
+            		} 
+            
+            		else {
+               			 // This is the server->child process
+               			 wait(NULL);
+               			 close(pipe_fd_1[1]); // Close the write end of the pipe (not needed by the parent)
+               			 char buffer[1024];
+               			 ssize_t bytesRead;
+               			 // Read data from the pipe (output of the child process)
+               			 bytesRead = read(pipe_fd_1[0], buffer, sizeof(buffer));
+               			 buffer[bytesRead] = '\0';
+                
+               			
+               			 if(Text.op == 3){
+               			     char buffer1[1024];
+               			     int count = 0;
+               			     int index = 0;
+                		     for(int i=0;i<strlen(buffer);++i){
+                   			     if(buffer[i] >= '0' && buffer[i] <= '9'){
+                   			         buffer1[index] = buffer[i];
+                   			         index++;
+                    			    }
+                   			     else{
+                    			        break;
+                     			   }
+                   		     }
+                   		 	buffer1[index] = '\0';
+                    		 	
+                   		 	strcpy(response,buffer1);
+                   		 	
+               		   	}
+
+               			else if(Text.op == 2){
+                	  	  
+                	  	  strcpy(response,buffer);
+                 	  	  printf("\n%s\n",buffer);
+                 	   	
+              		  	}
+
+                		close(pipe_fd_1[0]); // Close the read end of the pipe (parent is done reading)
+           		   }
+            
+            		/********************END OF 2 and 3 Handling ***********************/
     		}
     		
     		// Send messages to client via message queue
@@ -175,7 +264,7 @@ int main() {
     	clientID=msg.msgtype;
     	printf("Message received from client: %ld\n",msg.msgtype);
     	
-  
+    	
     	// Create pipes for communication with child processes
     	if (pipe(pipe_fds) == -1) {
      	       perror("pipe");
@@ -210,6 +299,7 @@ int main() {
         	}
 
         	printf("Child received message type: %ld\n", Text.msgtype);
+        	printf("Child received operation type: %d\n",Text.op);
         	printf("Child received message text: %s\n", Text.mtext);
         
     		
@@ -222,10 +312,97 @@ int main() {
     		{
     			strcpy(response,"Helloooo");
     		}
-    		else
+    		else 
     		{
     			// Req: Need to creat separate path for choice 2 and 3
-    			strcpy(response,"Middle choice");
+
+    				
+    				
+    			/************************************* 2 and 3 handling **********************************************************/
+    			
+    			// We create another pipe
+    			int pipe_fd_1[2];
+            		pid_t child_pid_1;
+            		if (pipe(pipe_fd_1) == -1) {
+              		  perror("Pipe creation failed");
+             		  exit(EXIT_FAILURE);
+            		}
+
+            		// Create a child process
+            		child_pid_1 = fork();
+
+            		if (child_pid_1 == -1) {
+            		    perror("Fork failed");
+            		    exit(EXIT_FAILURE);
+            		}
+
+            		if (child_pid_1 == 0) {   // This is the server->child->child process 
+              		  	// Child process
+              		  	close(pipe_fd_1[0]); // Close the read end of the pipe (not needed by the child)
+
+             		  	// Redirect stdout to the write end of the pipe
+             		  	 dup2(pipe_fd_1[1], 1);
+              		  	 close(pipe_fd_1[1]); // Close the original write end of the pipe
+             		  	 const char *fileName = Text.mtext;
+             		  	 // Replace the child process with a new process using execlp
+             		  	 if(Text.op == 3){
+             		  	     if (execlp("wc","wc", "-w",fileName, NULL) == -1) {
+              		   	       perror("execlp failed");
+              		   	       exit(EXIT_FAILURE);
+              		   	   }
+              		  	 }
+
+              		  	 if(Text.op == 2){
+               		 	    if(execlp("find","find",".","-name",fileName,NULL) == -1){
+               		 	        perror("Find execlp failed");
+               		 	        exit(EXIT_FAILURE);
+               		 	    }
+               		  	 }
+               		  	 
+               		  	 exit(EXIT_SUCCESS);
+            		} 
+            
+            		else {
+               			 // This is the server->child process
+               			 wait(NULL);
+               			 close(pipe_fd_1[1]); // Close the write end of the pipe (not needed by the parent)
+               			 char buffer[1024];
+               			 ssize_t bytesRead;
+               			 // Read data from the pipe (output of the child process)
+               			 bytesRead = read(pipe_fd_1[0], buffer, sizeof(buffer));
+               			 buffer[bytesRead] = '\0';
+                
+               			
+               			 if(Text.op == 3){
+               			     char buffer1[1024];
+               			     int count = 0;
+               			     int index = 0;
+                		     for(int i=0;i<strlen(buffer);++i){
+                   			     if(buffer[i] >= '0' && buffer[i] <= '9'){
+                   			         buffer1[index] = buffer[i];
+                   			         index++;
+                    			    }
+                   			     else{
+                    			        break;
+                     			   }
+                   		     }
+                   		 	buffer1[index] = '\0';
+                    		 	
+                   		 	strcpy(response,buffer1);
+                   		 	
+               		   	}
+
+               			else if(Text.op == 2){
+                	  	  
+                	  	  strcpy(response,buffer);
+                 	  	  printf("\n%s\n",buffer);
+                 	   	
+              		  	}
+
+                		close(pipe_fd_1[0]); // Close the read end of the pipe (parent is done reading)
+           		   }
+            
+            		/********************END OF 2 and 3 Handling ***********************/
     		}
     		
     		// Send messages to client via message queue
@@ -246,6 +423,7 @@ int main() {
     	else
     	{
     		// Maa Process
+    		// IF MESSAGE NOT FOR CLEAN UP
     	
     		// Step 1: Send message into pipe
     		if (write(pipe_fds[1], &msg, sizeof(msg)) == -1) {
@@ -262,9 +440,8 @@ int main() {
     
     // Cleanup and exit
     msgctl(msgqid, IPC_RMID, NULL); // Remove the message queue
-    printf("Client %ld exiting...\n", clientID);
+    printf("Server %ld exiting...\n", clientID);
     exit(EXIT_SUCCESS);
 
     return 0;
 }
-

@@ -14,6 +14,7 @@
 // Structure for MQ
 struct message {
     long msgtype; // should hold client Id
+    int op;
     char mtext[100];
 };
 
@@ -55,6 +56,7 @@ int main() {
 	// Now Cleanup initiation
 	// Send message to main server
 	msg.msgtype=999;
+	msg.op=0;
 	strcpy(msg.mtext,"-1");
     	if(msgsnd(msgqid,&msg,sizeof(msg.mtext),0)==-1)
     		{
@@ -68,4 +70,3 @@ int main() {
 
     return 0;
 }
-

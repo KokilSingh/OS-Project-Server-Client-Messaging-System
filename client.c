@@ -11,6 +11,7 @@
 // Structure for MQ
 struct message {
     long msgtype; // should hold client Id
+    int op;
     char mtext[100];
 };
 
@@ -57,15 +58,6 @@ int main() {
     		printf("Enter file name:");
     		scanf("%s",msg.mtext);
     		
-    		// Choice type concatenated at the end of the file name.. they will be split by server
-    		if(choice==2)
-    		{
-    			strcat(msg.mtext,"2");
-    		}
-    		else
-    		{
-    			strcat(msg.mtext,"3");
-    		}
     		
     	}
     	else if(choice==4)
@@ -77,7 +69,7 @@ int main() {
     		continue;
     	}
     	
-    	
+    	msg.op=choice;
     	// Send message to main server
     	if(msgsnd(msgqid,&msg,sizeof(msg.mtext),0)==-1)
     		{
