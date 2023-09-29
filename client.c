@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <string.h>
 
 #define MAX_MTEXT_SIZE 100
 
@@ -56,12 +57,24 @@ int main() {
     		printf("Enter file name:");
     		scanf("%s",msg.mtext);
     		
-    		// Req: Deal with the intricacies of the two choices 
+    		// Choice type concatenated at the end of the file name.. they will be split by server
+    		if(choice==2)
+    		{
+    			strcat(msg.mtext,"2");
+    		}
+    		else
+    		{
+    			strcat(msg.mtext,"3");
+    		}
     		
+    	}
+    	else if(choice==4)
+    	{
+    		strcpy(msg.mtext,"4");
     	}
     	else
     	{
-    		strcpy(msg.mtext,"4");
+    		continue;
     	}
     	
     	
@@ -92,4 +105,3 @@ int main() {
 
     return 0;
 }
-
