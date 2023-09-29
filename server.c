@@ -37,10 +37,7 @@ int main() {
     
     int pipe_fds[2]; // hold pipe file descriptors
 
-    // Create pipes for communication with child processes
-    if (pipe(pipe_fds) == -1) {
-            perror("pipe");
-    }
+    
 	
     /********************************************************* GENERAL CASE LISTENING TO MESSAGES***********************************************/
     // Listen for client requests
@@ -67,10 +64,10 @@ int main() {
     		break;
     	}
     	
-    	// IF MESSAGE NOT FOR CLEAN UP
-    	
-    	// Step 1: Send message into pipe
-    	// Step 2: Close Read End of Pipe
+    	// Create pipes for communication with child processes
+    	if (pipe(pipe_fds) == -1) {
+     	       perror("pipe");
+    	}
     	
     	// Now that message is received, lets (drumrolls....) FORK IT
     	pid_t p=fork();
@@ -81,19 +78,35 @@ int main() {
     	}
     	else if(p==0)
     	{
+    		struct message Text;
     		char response[100];
     		
     		// Child Process
     		
-    		// Choice Handling
-    		// Req: Need to create separate pipes for parent child communication
+    		
+    		
     		// Step 3: Close Write End of Pipe
+    		close(pipe_fds[1]);
+    		
     		// Step 4: Accept Message from pipe 
-    		if(strcmp("4",msg.mtext)==0)
+    		
+    		
+        	ssize_t bytes_read = read(pipe_fds[0], &Text, sizeof(Text));
+        	if (bytes_read == -1) {
+        	    perror("read");
+        	    exit(1);
+        	}
+
+        	printf("Child received message type: %ld\n", Text.msgtype);
+        	printf("Child received message text: %s\n", Text.mtext);
+        
+    		
+    		// Choice Handling
+    		if(strcmp("4",Text.mtext)==0)
     		{
     			strcpy(response,"Good bye");
     		}
-    		else if(strcmp("Hi",msg.mtext)==0)
+    		else if(strcmp("Hi",Text.mtext)==0)
     		{
     			strcpy(response,"Helloooo");
     		}
@@ -105,9 +118,9 @@ int main() {
     		
     		// Send messages to client via message queue
     		
-    		strcpy(msg.mtext,response);
+    		strcpy(Text.mtext,response);
     		
-    		if(msgsnd(msgqid,&msg,sizeof(msg.mtext),0)==-1)
+    		if(msgsnd(msgqid,&Text,sizeof(Text.mtext),0)==-1)
     		{
     			//Error in sending Message
     			perror("msgsnd");
@@ -121,6 +134,16 @@ int main() {
     	else
     	{
     		// Maa Process
+    		// IF MESSAGE NOT FOR CLEAN UP
+    	
+    		// Step 1: Send message into pipe
+    		if (write(pipe_fds[1], &msg, sizeof(msg)) == -1) {
+        	    perror("write");
+        	    exit(1);
+        	}
+    	
+    		// Step 2: Close Read End of Pipe
+    		close(pipe_fds[0]);
     		wait(NULL);
     	}
     	
@@ -152,6 +175,11 @@ int main() {
     	clientID=msg.msgtype;
     	printf("Message received from client: %ld\n",msg.msgtype);
     	
+  
+    	// Create pipes for communication with child processes
+    	if (pipe(pipe_fds) == -1) {
+     	       perror("pipe");
+    	}
     	
     	// Now that message is received, lets (drumrolls....) FORK IT
     	pid_t p=fork();
@@ -162,17 +190,35 @@ int main() {
     	}
     	else if(p==0)
     	{
+    		struct message Text;
     		char response[100];
     		
-    		// Bachha Process
+    		// Child Process
+    		
+    		
+    		
+    		// Step 3: Close Write End of Pipe
+    		close(pipe_fds[1]);
+    		
+    		// Step 4: Accept Message from pipe 
+    		
+    		
+        	ssize_t bytes_read = read(pipe_fds[0], &Text, sizeof(Text));
+        	if (bytes_read == -1) {
+        	    perror("read");
+        	    exit(1);
+        	}
+
+        	printf("Child received message type: %ld\n", Text.msgtype);
+        	printf("Child received message text: %s\n", Text.mtext);
+        
     		
     		// Choice Handling
-    		// Req: Need to create separate pipes for parent child communication
-    		if(strcmp("4",msg.mtext)==0)
+    		if(strcmp("4",Text.mtext)==0)
     		{
     			strcpy(response,"Good bye");
     		}
-    		else if(strcmp("Hi",msg.mtext)==0)
+    		else if(strcmp("Hi",Text.mtext)==0)
     		{
     			strcpy(response,"Helloooo");
     		}
@@ -184,9 +230,9 @@ int main() {
     		
     		// Send messages to client via message queue
     		
-    		strcpy(msg.mtext,response);
+    		strcpy(Text.mtext,response);
     		
-    		if(msgsnd(msgqid,&msg,sizeof(msg.mtext),0)==-1)
+    		if(msgsnd(msgqid,&Text,sizeof(Text.mtext),0)==-1)
     		{
     			//Error in sending Message
     			perror("msgsnd");
@@ -200,6 +246,15 @@ int main() {
     	else
     	{
     		// Maa Process
+    	
+    		// Step 1: Send message into pipe
+    		if (write(pipe_fds[1], &msg, sizeof(msg)) == -1) {
+        	    perror("write");
+        	    exit(1);
+        	}
+    	
+    		// Step 2: Close Read End of Pipe
+    		close(pipe_fds[0]);
     		wait(NULL);
     		cnt--;
     	}
@@ -212,3 +267,4 @@ int main() {
 
     return 0;
 }
+
