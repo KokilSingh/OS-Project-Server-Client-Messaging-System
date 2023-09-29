@@ -32,6 +32,15 @@ int main() {
         perror("msgget");
         exit(EXIT_FAILURE);
     }
+    
+    /*****PIPES******/
+    
+    int pipe_fds[2]; // hold pipe file descriptors
+
+    // Create pipes for communication with child processes
+    if (pipe(pipe_fds) == -1) {
+            perror("pipe");
+    }
 	
     /********************************************************* GENERAL CASE LISTENING TO MESSAGES***********************************************/
     // Listen for client requests
@@ -50,6 +59,18 @@ int main() {
     	clientID=msg.msgtype;
     	printf("Message received from client: %ld\n",msg.msgtype);
     	
+    	// Check if cleanup message received ********************* CLEAN UP MESSAGE CHECKING
+    	if(strcmp("-1",msg.mtext)==0)
+    	{
+    		//cleanup message received
+    		printf("Terminating\n");
+    		break;
+    	}
+    	
+    	// IF MESSAGE NOT FOR CLEAN UP
+    	
+    	// Step 1: Send message into pipe
+    	// Step 2: Close Read End of Pipe
     	
     	// Now that message is received, lets (drumrolls....) FORK IT
     	pid_t p=fork();
@@ -62,10 +83,12 @@ int main() {
     	{
     		char response[100];
     		
-    		// Bachha Process
+    		// Child Process
     		
     		// Choice Handling
     		// Req: Need to create separate pipes for parent child communication
+    		// Step 3: Close Write End of Pipe
+    		// Step 4: Accept Message from pipe 
     		if(strcmp("4",msg.mtext)==0)
     		{
     			strcpy(response,"Good bye");
@@ -129,13 +152,6 @@ int main() {
     	clientID=msg.msgtype;
     	printf("Message received from client: %ld\n",msg.msgtype);
     	
-    	// Check if cleanup message received
-    	if(strcmp("-1",msg.mtext)==0)
-    	{
-    		//cleanup message received
-    		printf("Terminating\n");
-    		break;
-    	}
     	
     	// Now that message is received, lets (drumrolls....) FORK IT
     	pid_t p=fork();
