@@ -1,4 +1,4 @@
-# OS Assignment 1
+# Server Client Messaging System
 
 ### Want to execute this
 :jack_o_lantern: Haan toh first 🏃 cleanup.out and then server.out after compiling it. And then 🏃 as many clients as you want using client.out :)
