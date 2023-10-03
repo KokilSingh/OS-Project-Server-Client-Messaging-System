@@ -59,6 +59,11 @@ int main() {
     	printf("Enter 4 if this Client wishes to exit\n");
     	printf("Enter choice:");
     	scanf("%d",&choice);
+    	if (msgget(key, 0666) == -1)
+    	{
+    		printf("Server has been shutdown\n");
+    		break;
+    	}
     	
     	// If choice is 1, the client will send Hi, and the server will respond with Hello.
     	if(choice==1){
@@ -98,12 +103,18 @@ int main() {
     		exit(EXIT_FAILURE);
     	}
 
-		if(choice==2)
+		if(choice==2 || choice == 3)
 		{
-			if(strlen(msg.mtext)>1) printf("\nFile Present in current directory\n");
+			if(strlen(msg.mtext)>1) 
+			{	
+				if(choice==2)
+					printf("\nFile Present in current directory\n");
+				else
+					printf("\nServer Reply: %s\n",msg.mtext);
+			}
 			else printf("\nFile NOT Present in current directory\n");
 		}
-		else if(choice == 1 || choice ==3)
+		else if(choice == 1)
 		{
 			printf("\nServer Reply: %s\n",msg.mtext);
 		}
@@ -113,6 +124,8 @@ int main() {
 		}
     	
     }
+
+	printf("Client Closing.....\n");
 
     return 0;
 }
