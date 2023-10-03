@@ -10,7 +10,7 @@ In this Assignment we are going to use the different concepts learnt so far like
 process creation, inter-process communication, wait() and exec(). The problem statement of the
 Assignment consists of the following parts.
 
-1) Write a POSIX-compliant C program client.c.
+#### 1) Write a POSIX-compliant C program client.c.
 - On execution, each instance of this program creates a separate client process,
 i.e., if the executable file corresponding to client.c is client.out, then each time
 client.out is executed on a separate terminal, a separate client process is
@@ -49,7 +49,7 @@ performing any sort of cleanup activities that are required to be done and then
 terminate.
 
 
-2) Write a POSIX-compliant C program server.c (let’s call this the main server).
+#### 2) Write a POSIX-compliant C program server.c (let’s call this the main server).
 - The main server is responsible for creating the message queue to be used for
 communication with the clients.
 - The main server will listen to the message queue for new requests from the
@@ -82,7 +82,7 @@ accordingly figure out how to communicate the result back to the client.
 clients. Upon a request, it spawns a child to service the request and listen for
 more requests.
 
-3) Write a POSIX compliant C program cleanup.c.
+#### 3) Write a POSIX compliant C program cleanup.c.
 - This cleanup process can keep running along with the clients and the main
 server. This process will keep displaying a menu as:
 Do you want the server to terminate? Press Y for Yes and N
